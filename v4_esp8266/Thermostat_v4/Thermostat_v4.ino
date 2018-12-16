@@ -31,7 +31,7 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, HIGH);
   digitalWrite(BUZZER_PIN, LOW);
-  
+
   //yield();
   delay(100);
 }
@@ -39,11 +39,11 @@ void setup() {
 
 
 void loop() {
-  // ****   TODO - use OneWire library (see example code) to implement non-blocking behaviour.   *** 
+  // ****   TODO - use OneWire library (see example code) to implement non-blocking behaviour.   ***
   //Serial.print("Requesting temperatures...");
   sensors.requestTemperatures(); // Send the command to get temperatures
   //Serial.println("DONE");
-  
+
   float tempC = sensors.getTempC(thermoAddr);
   if (DEBUG_SERIAL) Serial.printf("Temerature: %.2fC\n", tempC);
   // put your main code here, to run repeatedly:
@@ -56,6 +56,6 @@ void loop() {
     digitalWrite(RELAY_PIN, HIGH);       // maintain temp.. remove this line for single use
     resetAlarm();
   }
-  
+
   eepromLoop();
 }
