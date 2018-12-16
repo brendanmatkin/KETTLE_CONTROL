@@ -1,5 +1,5 @@
 #include <OneWire.h>
-//#include <NewTone.h>  // not required for spenceKonde ATTinyCore
+#include <NewTone.h>
 
 //#define data      11  // attiny change to 0
 //#define clk       12  // attiny change to 1
@@ -11,9 +11,9 @@
 #define relayPin   5
 #define tonePin    6
 #define pwrPin     7
-#define modePin    8     // reserved for future use
-#define bUpPin    10
-#define bDwnPin    9
+#define modePin    8
+#define bUpPin     9
+#define bDwnPin   10
 
 OneWire ds(thermoPin);   // thermometer pin
 byte thermoAddr[8];      // thermometer address
@@ -67,8 +67,7 @@ void setup() {
   // thermometer init
   printDisplay(setTemp);
   initThermo(setTemp);
-  //tempReadDelay = 750 / (1 << (12 - tempRes));
-  tempReadDelay = 500;   // actual 93.75ms   // had to increase this with the new Konde core. Maybe millis isn't accurate? 
+  tempReadDelay = 750 / (1 << (12 - tempRes));
   tempTimer = millis();
   
   setTimer = millis();
