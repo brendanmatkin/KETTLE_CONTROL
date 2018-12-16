@@ -12,6 +12,8 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DeviceAddress thermoAddr;
 
+uint8_t res = 9;                                  // thermometer resolution (9, 10, 11, or 12)
+int conversionTime = 750 / (1 << (12 - res));   // time for conversion
 
 
 void setup() {
@@ -24,7 +26,7 @@ void setup() {
   readFromEEPROM();
 
   // thermometer:
-  setupThermometer();
+  setupThermometer(res, false);      //  (resolution, wait for conversion)
 
   // pins:
   pinMode(RELAY_PIN, OUTPUT);
@@ -39,16 +41,18 @@ void setup() {
 
 
 void loop() {
-  // ****   TODO - use OneWire library (see example code) to implement non-blocking behaviour.   ***
-  //Serial.print("Requesting temperatures...");
-  sensors.requestTemperatures(); // Send the command to get temperatures
-  //Serial.println("DONE");
-
-  float tempC = sensors.getTempC(thermoAddr);
-  if (DEBUG_SERIAL) Serial.printf("Temerature: %.2fC\n", tempC);
-  // put your main code here, to run repeatedly:
-  if (tempC > state.setTemp) {
-    Serial.println("OFF");
+  // get temp async:
+  static uint32_t _thermoTimer;
+  if (millis() - _thermoTimer > conversionTime) {
+    state.currentTemp = sensors.getTempC(thermoAddr);
+    if (DEBUG_SERIAL) Serial.printf("New Temperature: %.2fC\n", state.currentTemp);
+    // put your main code here, to run repeatedly:
+    sensors.requestTemperatures(); // Send the command to get temperatures
+    _thermoTimer = millis();
+  }
+  
+  if (state.currentTemp > state.setTemp) {
+    //if (DEBUG_SERIAL) Serial.println("OFF");
     digitalWrite(RELAY_PIN, LOW);
     soundTheAlarm();
   }

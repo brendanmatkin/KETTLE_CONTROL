@@ -13,8 +13,8 @@ enum OperatingMode {
 
 struct DeviceState {
   OperatingMode mode = ON;    // disable this for switch-based operation
-  //float readTemp;
-  float setTemp = 75.0f;      // celcius
+  float currentTemp;
+  float setTemp = 25.0f;      // celcius
 } state;
 
 

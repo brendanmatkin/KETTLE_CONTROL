@@ -47,13 +47,13 @@ void printAddress(DeviceAddress deviceAddress)
 }
 
 
-void setupThermometer() {
+void setupThermometer(uint8_t _resolution, bool _wait) {
   Serial.print("Locating oneWire devices...");
   sensors.begin();
   Serial.print("Found ");
   Serial.print(sensors.getDeviceCount(), DEC);
   Serial.println(" devices.");
-  if (!sensors.getAddress(thermoAddr, 0)) Serial.println("Unable to find address for Device 0"); 
+  if (!sensors.getAddress(thermoAddr, 0)) Serial.println("Unable to find address for Device 0");
   //verify:
   Serial.print("Device 0 Address: ");
   printAddress(thermoAddr);
@@ -61,5 +61,10 @@ void setupThermometer() {
   sensors.setResolution(thermoAddr, 9);
   //verify:
   Serial.print("Device 0 Resolution: ");
-  Serial.print(sensors.getResolution(thermoAddr), DEC); 
+  Serial.print(sensors.getResolution(thermoAddr), DEC);
+
+  Serial.print("Wait for conversion: ");
+  Serial.print(_wait?"true":"false");
+  sensors.setWaitForConversion(_wait);  // makes it async
+  sensors.requestTemperatures();        // Send the command to get temperatures
 }
