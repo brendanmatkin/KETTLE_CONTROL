@@ -1,7 +1,36 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define DEBUG_SERIAL true
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+#include <ArduinoJson.h>
+#include <WebSocketsServer.h>
+#include <Hash.h>
+
+#include "wificonfig.h"   
+// to track and stop tracking config.h: 
+// git update-index --assume-unchanged FILE_NAME 
+// git update-index --no-assume-unchanged FILE_NAME
+
+const bool DEBUG_SERIAL = true;
+#define AP_MODE true
+
+
+/* -- network settings -- */
+String deviceName = "Kettle_Thermostat";      // used for DHCP
+const char* host  = "kettle";                 // used for mDNS
+const char* ssid  = "your-ssid";              // unused for now
+const char* password = "your-password";       // unused for now
+const char* ssid_AP  = WIFI_SSID;             // see wificonfig.h
+const char* password_AP = WIFI_PASSWORD;      // see wificonigh.h - **must be at least 8 characters!**
+
+IPAddress local_IP(10, 0, 0, 1);              // static IP  - use staticIP[index] to get & set individual octets
+IPAddress gateway(10, 0, 0, 1);               // gateway (for static)
+IPAddress subnet(255, 255, 255, 0);           // subnet (for static)
+
+
 
 enum OperatingMode {
   ON,

@@ -1,3 +1,7 @@
+extern "C" {
+#include "user_interface.h"   // allows wifi_set_sleep_type
+}
+
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <ESP_EEPROM.h>
@@ -12,18 +16,28 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DeviceAddress thermoAddr;
 
-uint8_t res = 9;                                  // thermometer resolution (9, 10, 11, or 12)
-int conversionTime = 750 / (1 << (12 - res));   // time for conversion
+ESP8266WebServer server(80);                        // http server
+WebSocketsServer webSocket = WebSocketsServer(81);  // websocket server
+
+uint8_t res = 9;                                    // thermometer resolution (9, 10, 11, or 12)
+int conversionTime = 750 / (1 << (12 - res));       // time for conversion
 
 
 void setup() {
+  wifi_set_sleep_type(NONE_SLEEP_T);    // disable sleep (might be related to analogRead)
+  
   delay(500);
   Serial.begin(115200);
-  Serial.println("Thermostat v.4.x");
+  Serial.println("Thermostat v.4.1.x (WiFi)");
 
   // update memory
   EEPROM.begin(sizeof(state));
   readFromEEPROM();
+
+  networkInit();
+  websocketInit();
+  mdnsInit();
+  serverInit();
 
   // thermometer:
   setupThermometer(res, false);      //  (resolution, wait for conversion)
@@ -41,11 +55,14 @@ void setup() {
 
 
 void loop() {
+  webSocket.loop();
+  server.handleClient();
+  
   // get temp async:
   static uint32_t _thermoTimer;
   if (millis() - _thermoTimer > conversionTime) {
     state.currentTemp = sensors.getTempC(thermoAddr);
-    if (DEBUG_SERIAL) Serial.printf("New Temperature: %.2fC\n", state.currentTemp);
+    //if (DEBUG_SERIAL) Serial.printf("New Temperature: %.2fC\n", state.currentTemp);
     // put your main code here, to run repeatedly:
     sensors.requestTemperatures(); // Send the command to get temperatures
     _thermoTimer = millis();
