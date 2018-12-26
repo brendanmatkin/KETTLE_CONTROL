@@ -177,7 +177,8 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
       </header>
 
       <h3>Current Temperature:</h3>
-      <h2><span id="label_currentTemp">21.0</span>°C</h2>
+      <!--<h2 id="currentTemp"><span id="label_currentTemp">[Not Connected]</span>°C</h2>-->
+      <h2 id="currentTemp">[Not Connected]</h2>
 
       <h3>Set Temperature:</h3>
       <h2><span id="label_setTemp">75.0</span>°C</h2>
@@ -187,7 +188,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
 
 
-    
+
     <script>
         "strict"
         /*
@@ -208,12 +209,15 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
         let sendWS = true
         let connection
+        let connected = false
 
         if (sendWS) {
           connection = new WebSocket('ws://' + location.hostname + ':81/', ['arduino']);
           //connection = new WebSocket('ws://127.0.0.1:8080/')
           connection.onopen = function () {
             connection.send('Connect ' + new Date())
+            connected = true
+            document.getElementById('currentTemp').innerHTML = '<span id=\"label_currentTemp\"></span>°C'
           }
           connection.onerror = function (error) {
             console.log('WebSocket Error ', error)
@@ -237,14 +241,22 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
           //console.log('Server State: ' + rawJSON)
           state = JSON.parse(rawJSON)
           console.log('Updated state object. ' + state.setTemp)
+          updateCurrentTemp()
         }
 
         function updateSetTemp() {
           state.setTemp = parseFloat(document.getElementById('temp').value)
           document.getElementById('label_setTemp').innerHTML = state.setTemp.toFixed(1)
           console.log('New Set Temperature: ', state.setTemp)
-          sendStateToWS()
+          if (connected) sendStateToWS()
         }
+
+        function updateCurrentTemp() {
+          document.getElementById('label_currentTemp').innerHTML = state.currentTemp.toFixed(1)
+          //<span id="label_currentTemp">[Not Connected]</span>°C
+        }
+
+
     </script>
   </body>
 </html>
