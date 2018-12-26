@@ -33,19 +33,29 @@ IPAddress subnet(255, 255, 255, 0);           // subnet (for static)
 
 
 enum OperatingMode {
-  ON,
-  OFF,
-  STANDBY,
-  INTERNET,
-  ADJUST
+  ON = 0,
+  OFF = 1,
+  STANDBY = 2,
+  INTERNET = 3,
+  ADJUST = 4
 };
 
 struct DeviceState {
   OperatingMode mode = ON;    // disable this for switch-based operation
   float currentTemp;
-  float setTemp = 25.0f;      // celcius
+  float setTemp = 75.0f;      // celcius
+  bool alarm = false;
+  bool ready = false;
 } state;
 
+/*
+let state = {
+  currentTemp: 21.0,
+  setTemp: 75.0,
+  alarm: false,
+  ready: false
+}
+*/
 
 
 uint32_t alarmOnTime    = 100;
