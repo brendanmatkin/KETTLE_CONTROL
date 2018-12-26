@@ -5,6 +5,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8"/>
     <meta name = "viewport" content = "width = device-width, initial-scale = 1.0">
     <title>Kettle Thermostat</title>
     <style>
