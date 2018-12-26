@@ -34,13 +34,13 @@ void setup() {
   EEPROM.begin(sizeof(state));
   readFromEEPROM();
 
+  // thermometer:
+  setupThermometer(res, false);      //  (resolution, wait for conversion)
+
   networkInit();
   websocketInit();
   mdnsInit();
   serverInit();
-
-  // thermometer:
-  setupThermometer(res, false);      //  (resolution, wait for conversion)
 
   // pins:
   pinMode(RELAY_PIN, OUTPUT);
