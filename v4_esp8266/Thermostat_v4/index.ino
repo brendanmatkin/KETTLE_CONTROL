@@ -168,7 +168,7 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
       <h3>Set Temperature:</h3>
       <h2><span id="label_setTemp">75.0</span>°C</h2>
-      <input class="slider" id="temp" type="range" min="0.0" max="100.0" step="0.5" oninput="updateSetTemp()" value="75.0">
+      <input class="slider" id="temp" type="range" min="0.0" max="100.0" step="0.5" oninput="updateSetTemp()">
 
     </div>
 
@@ -195,15 +195,16 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
 
         let sendWS = true
         let connection
-        let connected = false
+        let newConnection = false
 
         if (sendWS) {
           connection = new WebSocket('ws://' + location.hostname + ':81/', ['arduino']);
           //connection = new WebSocket('ws://127.0.0.1:8080/')
           connection.onopen = function () {
             connection.send('Connect ' + new Date())
-            connected = true
+            newConnection = true
             document.getElementById('currentTemp').innerHTML = '<span id=\"label_currentTemp\"></span>°C'
+            console.log('Connected')
           }
           connection.onerror = function (error) {
             console.log('WebSocket Error ', error)
@@ -211,6 +212,10 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
           connection.onmessage = function (e) {
             getStateFromWS(e.data)
             console.log('Server: ', e.data)
+            if (newConnection) {
+              initSetTemp()
+              newConnection = false
+            }
           }
           connection.onclose = function () {
             console.log('WebSocket connection closed')
@@ -230,11 +235,18 @@ static const char PROGMEM INDEX_HTML[] = R"rawliteral(
           updateCurrentTemp()
         }
 
+        function initSetTemp() {
+          document.getElementById('label_setTemp').innerHTML = state.setTemp.toFixed(1)
+          document.getElementById('temp').value = state.setTemp.toFixed(1)
+          console.log('Received Set Temperature: ', state.setTemp)
+        }
+
         function updateSetTemp() {
           state.setTemp = parseFloat(document.getElementById('temp').value)
           document.getElementById('label_setTemp').innerHTML = state.setTemp.toFixed(1)
           console.log('New Set Temperature: ', state.setTemp)
-          if (connected) sendStateToWS()
+          //if (connected) sendStateToWS()
+          sendStateToWS()
         }
 
         function updateCurrentTemp() {

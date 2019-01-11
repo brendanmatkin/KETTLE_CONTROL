@@ -62,6 +62,7 @@ void loop() {
   static uint32_t _thermoTimer;
   if (millis() - _thermoTimer > conversionTime) {
     state.currentTemp = sensors.getTempC(thermoAddr);
+    sendState();
     //if (DEBUG_SERIAL) Serial.printf("New Temperature: %.2fC\n", state.currentTemp);
     // put your main code here, to run repeatedly:
     sensors.requestTemperatures(); // Send the command to get temperatures

@@ -10,7 +10,15 @@ void serializeJSON_state(char * json) {
   root["ready"] = state.ready;
   root.printTo(json, jsonSendSize);
   //if (SERIAL_DEBUG) Serial.println(json);
-  if (DEBUG_SERIAL) root.prettyPrintTo(Serial);
+  //if (DEBUG_SERIAL) root.prettyPrintTo(Serial);
+}
+
+/* ------ helper function to send state ------*/
+void sendState() {
+  char stateJSON[jsonSendSize];
+  serializeJSON_state(stateJSON);
+  //webSocket.sendTXT(num, stateJSON);
+  webSocket.broadcastTXT(stateJSON);
 }
 
 /* --------- JSON Deserialize --------- */
@@ -48,14 +56,13 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length
         IPAddress ip = webSocket.remoteIP(num);
         if (DEBUG_SERIAL) Serial.printf("[ws] [%u] Connected from url: %u.%u.%u.%u%s replying...\n", num, ip[0], ip[1], ip[2], ip[3], payload);
         yield();
-        char stateJSON[jsonSendSize];
-        serializeJSON_state(stateJSON);
-        webSocket.sendTXT(num, stateJSON);
+        sendState();
       }
       break;
     case WStype_TEXT: {
         if (DEBUG_SERIAL) Serial.printf("[ws] [%u] got text: %s\n", num, payload);
         deserializeJSON(payload);
+        writeToEEPROM();
       }
       break;
     case WStype_BIN:
